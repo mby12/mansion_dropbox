@@ -29,4 +29,9 @@ Route::resource('in', "inController");
 Route::resource('out', "outController");
 Route::resource('report', "reportController");
 
+Route::prefix('pengambilan')->group(function () {
+    Route::post("takeCheck", "mainController@checkAmbilBarang")->name("item.check");
+    Route::post('take', "mainController@ambilBarang")->name("item.take");
+});
+
 Route::get('/home', 'HomeController@index')->name('home');

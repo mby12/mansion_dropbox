@@ -12,13 +12,13 @@
     <title>SB Admin 2 - Dashboard</title>
 
     <!-- Custom fonts for this template-->
-    <link href="{{ url("vendor/fontawesome-free/css/all.min.css") }}" rel="stylesheet" type="text/css">
+    <link href="{{ url('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link
         href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
         rel="stylesheet">
 
     <!-- Custom styles for this template-->
-    <link href="{{ url("css/sb-admin-2.min.css") }}" rel="stylesheet">
+    <link href="{{ url('css/sb-admin-2.min.css') }}" rel="stylesheet">
 
     @yield("head")
 
@@ -93,21 +93,162 @@
     </div>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="{{ url("vendor/jquery/jquery.min.js") }}"></script>
-    <script src="{{ url("vendor/bootstrap/js/bootstrap.bundle.min.js") }}"></script>
+    <script src="{{ url('vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
     <!-- Core plugin JavaScript-->
-    <script src="{{ url("vendor/jquery-easing/jquery.easing.min.js") }}"></script>
+    <script src="{{ url('vendor/jquery-easing/jquery.easing.min.js') }}"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="{{ url("js/sb-admin-2.min.js") }}"></script>
+    <script src="{{ url('js/sb-admin-2.min.js') }}"></script>
 
     <!-- Page level plugins -->
-    <script src="{{ url("vendor/chart.js/Chart.min.js") }}"></script>
+    {{-- <script src="{{ url('vendor/chart.js/Chart.min.js') }}"></script> --}}
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
     <!-- Page level custom scripts -->
     {{-- <script src="{{ url("js/demo/chart-area-demo.js") }}"></script>
     <script src="{{ url("js/demo/chart-pie-demo.js") }}"></script> --}}
+
+    <script>
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                }
+            });
+            $("#ambil_barang_form").keypress(function(e) {
+                if (e.which == 13) {
+                    $("#ambil_barang").trigger('click');
+                }
+            });
+            $("#ambil_barang").click(function() {
+                Swal.showLoading()
+                let thisId = $("#ambil_barang_form").val();
+                $.post("{{ route('item.check') }}", {
+                    id: thisId
+                }, function(result) {
+                    Swal.hideLoading()
+                    if (result.success) {
+                        Swal.fire({
+                            title: 'Pengambilan Barang',
+                            html: `<table class="table">
+                                        <tr>
+                                            <td>Unit</td>
+                                            <td>:</td>
+                                            <td>${result.data.unit}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nama Pengirim</td>
+                                            <td>:</td>
+                                            <td>${result.data.nama_pengirim}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nama Penerima</td>
+                                            <td>:</td>
+                                            <td>${result.data.nama_penerima}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>No Resi</td>
+                                            <td>:</td>
+                                            <td>${result.data.no_resi}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nama Logistik</td>
+                                            <td>:</td>
+                                            <td>${result.data.nama_logistik}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>No Loker</td>
+                                            <td>:</td>
+                                            <td>${result.data.no_loker}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Waktu Terima Barang</td>
+                                            <td>:</td>
+                                            <td>${result.data.created_at}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Waktu Ambil Barang</td>
+                                            <td>:</td>
+                                            <td>${result.data.take_date || "-"}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Status Pengambilan</td>
+                                            <td>:</td>
+                                            <td>${result.data.is_take == 1 ? "Sudah" : "Belum"} Diambil</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nama Pengambil</td>
+                                            <td>:</td>
+                                            <td>${result.data.nama_pengambil || "-"}</td>
+                                        </tr>
+                                    </table>`,
+                            showCancelButton: true,
+                            showConfirmButton: result.data.is_take != 1,
+                            cancelButtonText: "Tutup",
+                            input: result.data.is_take == 1 ? false : 'text' ,
+                            showLoaderOnConfirm: true,
+                            inputAttributes: {
+                                placeholder: "Nama Pengambil Barang"
+                            },
+                            preConfirm: (input) => {
+                                if (input.length == 0) {
+                                    Swal.showValidationMessage(
+                                        `Nama Wajib Diisi`
+                                    )
+                                } else {
+                                    // Build formData object.
+                                    let formData = new FormData();
+                                    formData.append('_token', '{{ csrf_token() }}');
+                                    formData.append('id', thisId);
+                                    formData.append('nama_pengambil', input);
+
+                                    return fetch(`{{ route('item.take') }}`, {
+                                            method: "POST",
+                                            body: formData
+                                        })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error(response
+                                                    .statusText)
+                                            }
+                                            return response.json()
+                                        })
+                                        .catch(error => {
+                                            Swal.showValidationMessage(
+                                                `Request failed: ${error}`
+                                            )
+                                        })
+                                }
+                            },
+                            confirmButtonText: 'Ambil',
+                            allowOutsideClick: () => !Swal.isLoading()
+                        }).then((result) => {
+                            console.log(result.value);
+                            /* Read more about isConfirmed, isDenied below */
+                            if (result.isConfirmed) {
+                                Swal.fire(
+                                    'Sukses!',
+                                    'Berhasil memproses status!',
+                                    'success'
+                                )
+                            } else if (result.isDenied) {
+                                Swal.fire('Changes are not saved', '', 'info')
+                            }
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Data tidak ditemukan!'
+                        })
+                    }
+                })
+            })
+        })
+    </script>
 
     @yield("footer")
 
