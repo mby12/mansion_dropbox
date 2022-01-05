@@ -28,9 +28,9 @@
                                     <label>Pilih Unit</label>
                                     <select required name="unit" class="custom-select select2">
                                         <option selected disabled>-- Unit Penerima --</option>
-                                        <option value="1">One</option>
-                                        <option value="2">Two</option>
-                                        <option value="3">Three</option>
+                                        @foreach ($units as $unit)
+                                            <option value="{{ $unit->room_no }}">{{ $unit->room_no }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
 

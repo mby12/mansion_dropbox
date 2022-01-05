@@ -34,11 +34,11 @@
     </li>
 
     <!-- Nav Item - Charts -->
-    <li class="nav-item {{ request()->routeIs("out.index") ? "active" : "" }}">
+    {{-- <li class="nav-item {{ request()->routeIs("out.index") ? "active" : "" }}">
         <a class="nav-link" href="{{ route("out.index") }}">
             <i class="fas fa-file-export"></i>
             <span>Ambil Barang</span></a>
-    </li>
+    </li> --}}
 
     <!-- Divider -->
     <hr class="sidebar-divider">
@@ -47,8 +47,8 @@
     <div class="sidebar-heading">
         DATA
     </div>
-    <li class="nav-item {{ request()->routeIs("out.index") ? "active" : "" }}">
-        <a class="nav-link" href="{{ route("out.index") }}">
+    <li class="nav-item {{ request()->routeIs("report.index") ? "active" : "" }}">
+        <a class="nav-link" href="{{ route("report.index") }}">
             <i class="far fa-chart-bar"></i>
             <span>Report</span></a>
     </li>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\MainsDataTable;
 use Illuminate\Http\Request;
 
 class reportController extends Controller
@@ -11,9 +12,9 @@ class reportController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(MainsDataTable $dataTable)
     {
-        //
+        return $dataTable->render('report');
     }
 
     /**

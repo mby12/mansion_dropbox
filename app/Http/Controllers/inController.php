@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\main;
+use App\tbresidential;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,7 +16,9 @@ class inController extends Controller
      */
     public function index()
     {
-        return view("item.in");
+        $units = tbresidential::select("room_no")->distinct()->get();
+        // return response()->json($_units);
+        return view("item.in", compact("units"));
     }
 
     /**
